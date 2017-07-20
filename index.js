@@ -21,8 +21,6 @@ async function getPinnedReference({name, reference}) {
   return {name, reference}
 }
 
-console.log(getPinnedReference({name: "react", reference: "~15.3.0"}))
-
 async function fetchPackage({name, reference}) {
 
   if([`/`, `./`, `../`].some((prefix) => reference.startsWith(prefix)))
@@ -36,3 +34,5 @@ async function fetchPackage({name, reference}) {
     throw new Error(`Couldn't fetch package "${reference}"`)
   return await response.buffer()
 }
+
+export { getPinnedReference }
