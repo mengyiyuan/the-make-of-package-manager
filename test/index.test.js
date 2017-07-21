@@ -29,7 +29,7 @@ describe('getPinnedReference', function() {
 describe('getPackageDependencies', function() {
   it('should get the first layer of dependencies', async function() {
     const result = await getPackageDependencies({name: "react", reference: "15.6.1"})
-    assert.equal(result.filter(d => d.name == "create-react-class" && d.reference == '^15.6.0').length > 0, true)
-    assert.equal(result.filter(d => d.name == "prop-types" && d.reference == '^15.5.10').length > 0, true)
+    assert.equal(result.some(d => d.name == "create-react-class" && d.reference == '^15.6.0'), true)
+    assert.equal(result.some(d => d.name == "prop-types" && d.reference == '^15.5.10'), true)
   })
 })
