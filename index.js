@@ -48,12 +48,21 @@ async function getPackageDependencies({ name, reference }) {
   })
 }
 
-async function getDependencyTree({name, reference, dependencies}) {
-  return {name, reference, dependencies: await Promise.all(dependencies.map(async volatileDependency => {
+async function getDependencyTree({name, reference, dependencies}, available = new Map()) {
+  return {name, reference, dependencies: await Promise.all(dependencies.filter(volatileDependency => {
+    let availableRefernce = available.get(volatileDependency.name)
+    if (volatileDependency.reference === availableRefernce) return false
+    if (semver.validRange(volatileDependency.reference)
+      && semver.satisfies(availableRefernce, volatileDependency.reference)) return false
+    return true
+  }).map(async volatileDependency => {
     let pinnedDependency = await getPinnedReference(volatileDependency)
     let subDependencies = await getPackageDependencies(pinnedDependency)
 
-    return await getDependencyTree(Object.assign({}, pinnedDependency, { dependencies: subDependencies }))
+    let subAvailable = new Map(available)
+    subAvailable.set(pinnedDependency.name, pinnedDependency.reference)
+
+    return await getDependencyTree(Object.assign({}, pinnedDependency, { dependencies: subDependencies }), subAvailable)
   }))}
 }
 
