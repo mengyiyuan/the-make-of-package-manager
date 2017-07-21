@@ -48,4 +48,13 @@ async function getPackageDependencies({ name, reference }) {
   })
 }
 
-export { getPinnedReference, getPackageDependencies }
+async function getDependencyTree({name, reference, dependencies}) {
+  return {name, reference, dependencies: await Promise.all(dependencies.map(async volatileDependency => {
+    let pinnedDependency = await getPinnedReference(volatileDependency)
+    let subDependencies = await getPackageDependencies(pinnedDependency)
+
+    return await getDependencyTree(Object.assign({}, pinnedDependency, { dependencies: subDependencies }))
+  }))}
+}
+
+export { getPinnedReference, getPackageDependencies, getDependencyTree }
