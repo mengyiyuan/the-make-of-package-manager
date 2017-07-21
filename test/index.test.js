@@ -1,5 +1,6 @@
-import { getPinnedReference } from '../index'
-var assert = require('assert')
+import { getPinnedReference, getPackageDependencies } from '../index'
+var chai = require('chai')
+var assert = chai.assert
 
 describe('Array', function() {
   it('should return -1 when the value is not present', function() {
@@ -22,5 +23,13 @@ describe('getPinnedReference', function() {
     const result = await getPinnedReference({name: "react", reference: "/tmp/react-15.3.2.tar.gz"})
     assert.equal(result.name, 'react')
     assert.equal(result.reference, '/tmp/react-15.3.2.tar.gz')
+  })
+})
+
+describe('getPackageDependencies', function() {
+  it('should get the first layer of dependencies', async function() {
+    const result = await getPackageDependencies({name: "react", reference: "15.6.1"})
+    assert.equal(result.filter(d => d.name == "create-react-class" && d.reference == '^15.6.0').length > 0, true)
+    assert.equal(result.filter(d => d.name == "prop-types" && d.reference == '^15.5.10').length > 0, true)
   })
 })

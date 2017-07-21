@@ -2,6 +2,8 @@ import fetch from 'node-fetch'
 import semver from 'semver'
 import fs from 'fs-extra'
 
+import { readPackageJsonFromArchive } from './utilities'
+
 async function getPinnedReference({name, reference}) {
   // only require extra process if input reference is not pinned
   if (semver.validRange(reference) && !semver.valid(reference)) {
@@ -35,4 +37,15 @@ async function fetchPackage({name, reference}) {
   return await response.buffer()
 }
 
-export { getPinnedReference }
+async function getPackageDependencies({ name, reference }) {
+  let packageBuffer = await fetchPackage({ name, reference })
+  let packageJson = JSON.parse(await readPackageJsonFromArchive(packageBuffer))
+
+  let dependencies = packageJson.dependencies || {}
+
+  return Object.keys(dependencies).map(name => {
+    return { name, reference: dependencies[name] }
+  })
+}
+
+export { getPinnedReference, getPackageDependencies }
